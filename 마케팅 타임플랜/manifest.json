@@ -1,0 +1,9 @@
+{
+  "name": "마케팅 타임플랜",
+  "short_name": "타임플랜",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366f1",
+  "icons": []
+}

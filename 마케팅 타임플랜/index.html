@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>마케팅 팀 타임플랜</title>
+  <link rel="stylesheet" href="css/style.css?v=20260422" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+    <link rel="manifest" href="/manifest.json" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js');
+    }
+  </script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header id="app-header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="logo">
+        <i class="fa-solid fa-calendar-days"></i>
+        <span>Marketing Timeplan</span>
+      </div>
+      <div class="project-badge">마케팅 업무 일정</div>
+    </div>
+    <div class="header-right">
+      <div class="team-avatars">
+        <div class="avatar" title="이상희 팀장" style="background:#6366f1">이</div>
+        <div class="avatar" title="정현동 대표" style="background:#8b5cf6">정</div>
+        <div class="avatar" title="홍준기 대표" style="background:#06b6d4">홍</div>
+      </div>
+      <button class="btn-add-task" id="btn-open-modal">
+        <i class="fa-solid fa-plus"></i> 새 작업
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== TOOLBAR ===== -->
+<div id="toolbar">
+  <div class="toolbar-inner">
+    <nav class="view-tabs" role="tablist">
+      <button class="tab-btn active" data-view="gantt" role="tab">
+        <i class="fa-solid fa-bars-progress"></i> 간트 차트
+      </button>
+      <button class="tab-btn" data-view="calendar" role="tab">
+        <i class="fa-solid fa-calendar-days"></i> 월간 캘린더
+      </button>
+      <button class="tab-btn" data-view="kanban" role="tab">
+        <i class="fa-solid fa-table-columns"></i> 칸반 보드
+      </button>
+      <button class="tab-btn" data-view="timeline" role="tab">
+        <i class="fa-solid fa-timeline"></i> 타임라인
+      </button>
+      <button class="tab-btn" data-view="checklist" role="tab">
+        <i class="fa-solid fa-clipboard-check"></i> 월간 계획표
+      </button>
+    </nav>
+    <div class="toolbar-filters">
+      <div class="filter-group">
+        <label for="filter-assignee"><i class="fa-solid fa-user"></i></label>
+        <select id="filter-assignee">
+          <option value="">전체 담당자</option>
+          <option value="이상희">이상희</option>
+          <option value="정현동">정현동</option>
+          <option value="홍준기">홍준기</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filter-status"><i class="fa-solid fa-circle-half-stroke"></i></label>
+        <select id="filter-status">
+          <option value="">전체 상태</option>
+          <option value="예정">예정</option>
+          <option value="진행중">진행중</option>
+          <option value="완료">완료</option>
+          <option value="보류">보류</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filter-priority"><i class="fa-solid fa-flag"></i></label>
+        <select id="filter-priority">
+          <option value="">전체 우선순위</option>
+          <option value="높음">높음</option>
+          <option value="보통">보통</option>
+          <option value="낮음">낮음</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main id="main-content">
+
+  <!-- GANTT VIEW -->
+  <section id="view-gantt" class="view-section active">
+    <div class="gantt-wrapper">
+      <div id="gantt-container"></div>
+    </div>
+  </section>
+
+  <!-- CALENDAR VIEW -->
+  <section id="view-calendar" class="view-section">
+    <div class="calendar-wrapper">
+      <div class="cal-nav">
+        <button id="cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
+        <h2 id="cal-title"></h2>
+        <button id="cal-next"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+      <div id="calendar-grid"></div>
+    </div>
+  </section>
+
+  <!-- KANBAN VIEW -->
+  <section id="view-kanban" class="view-section">
+    <div class="kanban-board" id="kanban-board"></div>
+  </section>
+
+  <!-- TIMELINE VIEW -->
+  <section id="view-timeline" class="view-section">
+    <div class="timeline-wrapper" id="timeline-container"></div>
+  </section>
+
+  <!-- CHECKLIST VIEW -->
+  <section id="view-checklist" class="view-section">
+    <div class="checklist-wrapper">
+      <div class="checklist-nav">
+        <button id="cl-prev"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="checklist-nav-center">
+          <h2 id="cl-title"></h2>
+          <span id="cl-progress-summary"></span>
+        </div>
+        <button id="cl-next"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+      <div class="cl-progress-bar-wrap">
+        <div class="cl-progress-bar" id="cl-progress-bar"></div>
+      </div>
+      <div id="checklist-body"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== TASK MODAL ===== -->
+<div id="task-modal" class="modal-overlay" hidden>
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-title">작업 추가</h3>
+      <button class="modal-close" id="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="task-form" autocomplete="off">
+      <input type="hidden" id="task-id" />
+      <div class="form-grid">
+        <div class="form-group full">
+          <label for="f-title">작업명 *</label>
+          <input type="text" id="f-title" placeholder="작업명을 입력하세요" required />
+        </div>
+        <div class="form-group full">
+          <label for="f-project">프로젝트</label>
+          <input type="text" id="f-project" placeholder="프로젝트/캠페인명" value="마케팅 업무 일정" />
+        </div>
+        <div class="form-group">
+          <label for="f-assignee">담당자</label>
+          <select id="f-assignee">
+            <option value="이상희">이상희</option>
+            <option value="정현동">정현동</option>
+            <option value="홍준기">홍준기</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="f-status">상태</label>
+          <select id="f-status">
+            <option value="예정">예정</option>
+            <option value="진행중">진행중</option>
+            <option value="완료">완료</option>
+            <option value="보류">보류</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="f-start">시작일</label>
+          <input type="date" id="f-start" />
+        </div>
+        <div class="form-group">
+          <label for="f-end">마감일</label>
+          <input type="date" id="f-end" />
+        </div>
+        <div class="form-group">
+          <label for="f-priority">우선순위</label>
+          <select id="f-priority">
+            <option value="높음">높음</option>
+            <option value="보통">보통</option>
+            <option value="낮음">낮음</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="f-color">색상</label>
+          <div class="color-picker-row">
+            <input type="color" id="f-color" value="#6366f1" />
+            <div class="color-presets">
+              <span class="color-preset active" style="background:#6366f1" data-color="#6366f1"></span>
+              <span class="color-preset" style="background:#8b5cf6" data-color="#8b5cf6"></span>
+              <span class="color-preset" style="background:#06b6d4" data-color="#06b6d4"></span>
+              <span class="color-preset" style="background:#10b981" data-color="#10b981"></span>
+              <span class="color-preset" style="background:#f59e0b" data-color="#f59e0b"></span>
+              <span class="color-preset" style="background:#ef4444" data-color="#ef4444"></span>
+              <span class="color-preset" style="background:#ec4899" data-color="#ec4899"></span>
+              <span class="color-preset" style="background:#64748b" data-color="#64748b"></span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label for="f-tags">태그</label>
+          <input type="text" id="f-tags" placeholder="태그를 쉼표로 구분 (예: 행사, 기획)" />
+        </div>
+        <div class="form-group full">
+          <label for="f-memo">메모</label>
+          <textarea id="f-memo" rows="2" placeholder="작업에 대한 메모를 입력하세요"></textarea>
+        </div>
+        <div class="form-group full">
+          <label for="f-link">링크</label>
+          <input type="url" id="f-link" placeholder="https://..." />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-danger" id="btn-delete-task" style="display:none">
+          <i class="fa-solid fa-trash"></i> 삭제
+        </button>
+        <div class="footer-right">
+          <button type="button" class="btn-secondary" id="btn-cancel-modal">취소</button>
+          <button type="submit" class="btn-primary"><i class="fa-solid fa-check"></i> 저장</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast" class="toast"></div>
+
+<script src="js/app.js?v=20260422"></script>
+</body>
+</html>
